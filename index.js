@@ -26,6 +26,8 @@ client.connect((err) => {
 
   app.post("/appointmentData", (req, res) => {
     const data = req.body;
+    data.status = "pending";
+    data.visited = "no";
     appointCollection.insertOne(data).then((result) => {
       res.send(result.insertedCount > 0);
     });
@@ -63,11 +65,13 @@ client.connect((err) => {
       .then((result) => {
         if (result.prescription) {
           prescription.push(...result.prescription, req.body);
+          return prescription;
         } else {
           prescription.push(req.body);
+          return prescription;
         }
       })
-      .then(() => {
+      .then((prescription) => {
         appointCollection
           .updateOne(
             { _id: ObjectId(id) },
@@ -75,7 +79,9 @@ client.connect((err) => {
           )
           .then((result) => {
             if (result) {
-              res.send(true);
+              res.send(prescription);
+            } else {
+              res.send(false);
             }
           });
       });
@@ -90,15 +96,39 @@ client.connect((err) => {
         appointCollection
           .updateOne({ _id: ObjectId(id) }, { $set: { prescription } })
           .then((upRes) => {
-            res.send(upRes.modifiedCount > 0);
+            if (upRes.modifiedCount > 0) {
+              res.send(prescription);
+            }
           })
           .catch(() => {
-            res.send(fase);
+            res.send(false);
           });
       } else {
         res.send(false);
       }
     });
+  });
+
+  app.patch("/changeStatus", (req, res) => {
+    const { id, status } = req.query;
+
+    appointCollection
+      .updateOne({ _id: ObjectId(id) }, { $set: { status: status } })
+      .then((result) => {
+        if (result.modifiedCount > 0) {
+          res.send(status);
+        } else {
+          res.send(false);
+        }
+      });
+  });
+  app.patch("/visitingStatus", (req, res) => {
+    const { id, visited } = req.body;
+    appointCollection
+      .updateOne({ _id: ObjectId(id) }, { $set: { visited: visited } })
+      .then((result) => {
+        res.send(result.modifiedCount > 0);
+      });
   });
 });
 
