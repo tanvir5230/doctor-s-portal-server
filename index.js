@@ -66,6 +66,7 @@ client.connect((err) => {
       .then((result) => {
         if (result.prescription) {
           prescription.push(...result.prescription, req.body);
+          console.log(prescription)
           return prescription;
         } else {
           prescription.push(req.body);
