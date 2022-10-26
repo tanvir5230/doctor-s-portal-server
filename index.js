@@ -44,8 +44,9 @@ client.connect((err) => {
     }
   });
 
-  app.get("/dashboard", (req, res) => {
+  app.get("doctor's-panel/dashboard", (req, res) => {
     const { date } = req.query;
+    console.log(date)
     if (date) {
       appointCollection.find({ date }).toArray((err, docs) => {
         res.send(docs);
@@ -132,4 +133,5 @@ client.connect((err) => {
   });
 });
 
-app.listen(port);
+
+app.listen(port, ()=>console.log("server is running."));
