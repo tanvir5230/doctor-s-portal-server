@@ -44,7 +44,7 @@ client.connect((err) => {
     }
   });
 
-  app.get("doctor's-panel/dashboard", (req, res) => {
+  app.get("/dashboard", (req, res) => {
     const { date } = req.query;
     console.log(date)
     if (date) {
